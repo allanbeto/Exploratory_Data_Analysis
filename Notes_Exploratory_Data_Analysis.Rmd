@@ -1,0 +1,153 @@
+---
+title: "Data Exploratory Analysis"
+author: "AAA"
+date: "20 de diciembre de 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Exploring Categorical Data
+
+In this chapter, you will learn how to create graphical and numerical summaries of two categorical variables.
+
+
+### Contingency table review
+
+In this chapter you'll continue working with the comics dataset introduced in the video. This is a collection of characteristics on all of the superheroes created by Marvel and DC comics in the last 80 years.
+
+Let's start by creating a contingency table, which is a useful way to represent the total counts of observations that fall into each combination of the levels of categorical variables.
+
+### INSTRUCTIONS
+
+The dataset has been loaded into your workspace as comics.
+
+Type the name of the dataset to look at the rows and columns of the dataset.
+View the levels() that the align variable can take.
+View the levels() that the gender variable can take.
+Create a contingency table of the same two variables.
+
+```{r}
+#pre exercise code
+
+
+url <- "http://s3.amazonaws.com/assets.datacamp.com/production/course_1796/datasets/comics.csv"
+
+#download.file(url, "comics.csv")
+#install.packages("dplyr")
+
+#dataframe
+comics <- read.csv("comics.csv", stringsAsFactors = TRUE)
+```
+
+```{r}
+# Print the first rows of the data
+comics
+
+# Check levels of align
+levels(comics$align)
+
+# Check the levels of gender
+levels(comics$gender)
+
+# Create a 2-way contingency table
+table(comics$align, comics$gender)
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+
+
+
+## Exploring Numerical Data
+
+In this chapter, you will learn how to graphically summarize numerical data.
+
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+
+
+## Numerical Summaries
+
+Now that we've looked at exploring categorical and numerical data, you'll learn some useful statistics for describing distributions of data.
+
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+
+
+
+Case Study
+
+Apply what you've learned to explore and summarize a real world dataset in this case study of email spam.
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+
+
+
+
