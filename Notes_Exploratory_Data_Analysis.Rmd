@@ -53,7 +53,7 @@ comics <- read.csv("comics.csv", stringsAsFactors = TRUE)
 
 ```{r}
 # Print the first rows of the data
-comics
+head(comics)
 
 # Check levels of align
 levels(comics$align)
@@ -255,17 +255,16 @@ library("ggplot2")
 # Learn data structure
 str(cars)
 
-# Create faceted histogram
+# Create faceted histogram   #-------->error knit to html
 ggplot(cars, aes(x = city_mpg)) +
-  geom_histogram() +
-  facet_wrap(~ suv)
+geom_histogram() +
+facet_wrap(~ suv)
 
 ```
 
 ```{r}
-url <- "http://s3.amazonaws.com/assets.datacamp.com/production/course_1796/datasets/cars04.csv"
-download.file(url, "cars04.csv")
-
+#url <- "http://s3.amazonaws.com/assets.datacamp.com/production/course_1796/datasets/cars04.csv"
+#download.file(url, "cars04.csv")
 cars <- read.csv("cars04.csv")
 ```
 
