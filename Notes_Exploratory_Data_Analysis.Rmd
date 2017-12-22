@@ -44,6 +44,8 @@ url <- "http://s3.amazonaws.com/assets.datacamp.com/production/course_1796/datas
 #download.file(url, "comics.csv")
 #install.packages("dplyr")
 #install.packages("ggplot2")
+#install.packages("gapminder")
+#install.packages("gridExtra")
 
 #dataframe
 comics <- read.csv("comics.csv", stringsAsFactors = TRUE)
@@ -298,54 +300,317 @@ ggplot(common_cyl, aes(x = city_mpg, fill = as.factor(ncyl))) +
 
 Now that we've looked at exploring categorical and numerical data, you'll learn some useful statistics for describing distributions of data.
 
+### Marginal and conditional histograms
+
+Now, turn your attention to a new variable: horsepwr. The goal is to get a sense of the marginal distribution of this variable and then compare it to the distribution of horsepower conditional on the price of the car being less than $25,000.
+
+You'll be making two plots using the "data pipeline" paradigm, where you start with the raw data and end with the plot.
+
+### INSTRUCTIONS
+
+Create a histogram of the distribution of horsepwr across all cars and add an appropriate title. Start by piping in the raw dataset.
+Create a second histogram of the distribution of horsepower, but only for those cars that have an msrp less than $25,000. Keep the limits of the x-axis so that they're similar to that of the first plot, and add a descriptive title.
+
+
 
 ```{r}
+# Create hist of horsepwr
+cars %>%
+  ggplot(aes(horsepwr)) +
+  geom_histogram() +
+  ggtitle("Distribution of Horse Power")
+
+# Create hist of horsepwr for affordable cars
+cars %>% 
+  filter(msrp<25000) %>%
+  ggplot(aes(horsepwr)) +
+  geom_histogram() +
+  xlim(c(90, 550)) +
+  ggtitle("Distribution of Horse Power")
+```
+
+### Three binwidths
+
+Before you take these plots for granted, it's a good idea to see how things change when you alter the binwidth. The binwidth determines how smooth your distribution will appear: the smaller the binwidth, the more jagged your distribution becomes. It's good practice to consider several binwidths in order to detect different types of structure in your data.
+
+### INSTRUCTIONS
+
+Create the following three plots, adding a title to each to indicate the binwidth used:
+
+A histogram of horsepower (i.e. horsepwr) with a binwidth of 3.
+A second histogram of horsepower with a binwidth of 30.
+A third histogram of horsepower with a binwidth of 60.
+
+```{r}
+# Create hist of horsepwr with binwidth of 3
+cars %>%
+  ggplot(aes(horsepwr)) +
+  geom_histogram(binwidth = 3) +
+  ggtitle("Distribution of Horse Power")
+
+# Create hist of horsepwr with binwidth of 30
+cars %>%
+  ggplot(aes(horsepwr)) +
+  geom_histogram(binwidth = 30) +
+  ggtitle("Distribution of Horse Power")
+
+# Create hist of horsepwr with binwidth of 60
+
+cars %>%
+  ggplot(aes(horsepwr)) +
+  geom_histogram(binwidth = 60) +
+  ggtitle("Distribution of Horse Power")
+```
+
+### Box plots for outliers
+
+In addition to indicating the center and spread of a distribution, a box plot provides a graphical means to detect outliers. You can apply this method to the msrp column (manufacturer's suggested retail price) to detect if there are unusually expensive or cheap cars.
+
+### INSTRUCTIONS
+
+Construct a box plot of msrp.
+Exclude the largest 3-5 outliers by filtering the rows to retain cars less than $100,000. Save this reduced dataset as cars_no_out.
+Construct a similar box plot of msrp using this reduced dataset. Compare the two plots.
+
+```{r}
+# Construct box plot of msrp
+cars %>%
+  ggplot(aes(x = 1, y = msrp)) +
+  geom_boxplot()
+
+# Exclude outliers from data
+cars_no_out <- cars %>%
+  filter(msrp <100000)
+
+# Construct box plot of msrp using the reduced dataset
+cars_no_out %>%
+  ggplot(aes(x = 1, y = msrp)) +
+  geom_boxplot()
 
 ```
 
+### Plot selection
+
+Consider two other columns in the cars dataset: city_mpg and width. Which is the most appropriate plot for displaying the important features of their distributions? Remember, both density plots and box plots display the central tendency and spread of the data, but the box plot is more robust to outliers.
+
+### INSTRUCTIONS
+
+Use density plots or box plots to construct the following visualizations. For each variable, try both plots and submit the one that is better at capturing the important structure.
+
+Display the distribution of city_mpg.
+Display the distribution of width.
+
+
 ```{r}
+# Create plot of city_mpg
+cars %>%
+  ggplot(aes(x = 1, y = city_mpg)) +
+  geom_boxplot()
+
+# Create plot of width
+cars %>%
+  ggplot(aes(x = width)) +
+  geom_density()
 
 ```
 
+### 3 variable plot
+
+Faceting is a valuable technique for looking at several conditional distributions at the same time. If the faceted distributions are laid out in a grid, you can consider the association between a variable and two others, one on the rows of the grid and the other on the columns.
+
+### INSTRUCTIONS
+
+common_cyl, which you created to contain only cars with 4, 6, or 8 cylinders, is available in your workspace.
+
+Create a histogram of hwy_mpg faceted on both ncyl and suv.
+Add a title to your plot to indicate what variables are being faceted on.
+
 ```{r}
+common_cyl %>%
+  ggplot(aes(x = hwy_mpg)) +
+  geom_histogram() +
+  facet_grid(ncyl ~ suv, labeller = label_both) +
+  ggtitle("ncyl vs suv")
+
 
 ```
 
+
+###
+
+Calculate center measures
+
+Throughout this chapter, you will use data from gapminder, which tracks demographic data in countries of the world over time. To learn more about it, you can bring up the help file with ?gapminder.
+
+For this exercise, focus on how the life expectancy differs from continent to continent. This requires that you conduct your analysis not at the country level, but aggregated up to the continent level. This is made possible by the one-two punch of group_by() and summarize(), a very powerful syntax for carrying out the same analysis on different subsets of the full dataset.
+
+### INSTRUCTIONS
+
+Create a dataset called gap2007 that contains only data from the year 2007.
+Using gap2007, calculate the mean and median life expectancy for each continent. Don't worry about naming the new columns produced by summarize().
+Confirm the trends that you see in the medians by generating side-by-side box plots of life expectancy for each continent.
+
 ```{r}
+library("gapminder")
+
+# Create dataset of 2007 data
+gap2007 <- filter(gapminder, year==2007)
+
+# Compute groupwise mean and median lifeExp
+gap2007 %>%
+  group_by(continent) %>%
+  summarize(mean(lifeExp),
+            median(lifeExp))
+
+# Generate box plots of lifeExp for each continent
+gap2007 %>%
+  ggplot(aes(x = continent, y = lifeExp)) +
+  geom_boxplot()
 
 ```
 
+### Calculate spread measures
+
+Let's extend the powerful group_by() and summarize() syntax to measures of spread. If you're unsure whether you're working with symmetric or skewed distributions, it's a good idea to consider a robust measure like IQR in addition to the usual measures of variance or standard deviation.
+
+### INSTRUCTIONS
+
+The gap2007 dataset that you created in an earlier exercise is available in your workspace.
+
+For each continent in gap2007, summarize life expectancies using the sd(), the IQR(), and the count of countries, n(). No need to name the new columns produced here. The n() function within your summarize() call does not take any arguments.
+Graphically compare the spread of these distributions by constructing overlaid density plots of life expectancy broken down by continent.
+
 ```{r}
+# Compute groupwise measures of spread
+gap2007 %>%
+  group_by(continent) %>%
+  summarize(sd(lifeExp),
+            IQR(lifeExp),
+            n())
+
+# Generate overlaid density plots
+gap2007 %>%
+  ggplot(aes(x = lifeExp, fill = continent)) +
+  geom_density(alpha = 0.3)
+```
+### Choose measures for center and spread
+
+Consider the density plots shown here. What are the most appropriate measures to describe their centers and spreads? In this exercise, you'll select the measures and then calculate them.
+
+### INSTRUCTIONS
+
+Using the shapes of the density plots, calculate the most appropriate measures of center and spread for the following:
+
+The distribution of life expectancy in the countries of the Americas. Note you'll need to apply a filter here.
+The distribution of country populations across the entire gap2007 dataset.
+```{r}
+
+
+gap2007 <- filter(gapminder, year == 2007)
+p1 <- gap2007 %>%
+filter(continent == "Americas") %>%
+ggplot(aes(x = lifeExp)) +
+geom_density() +
+ggtitle("Life Expectancy in the Americas")
+# skewed
+p2 <- gap2007 %>%
+ggplot(aes(x = pop)) +
+geom_density() +
+ggtitle("Country-Level Population")
+
+library(gridExtra)
+grid.arrange(p1, p2, ncol = 2)
+```
+
+```{r}
+# Compute stats for lifeExp in Americas
+gap2007 %>%
+  filter(continent == "Americas") %>%
+  summarize(mean(lifeExp),
+            sd(lifeExp))
+
+# Compute stats for population
+gap2007 %>%
+  summarize(median (pop),
+            IQR(pop))
+
+```
+
+### Transformations
+
+Highly skewed distributions can make it very difficult to learn anything from a visualization. Transformations can be helpful in revealing the more subtle structure.
+
+Here you'll focus on the population variable, which exhibits strong right skew, and transform it with the natural logarithm function (log() in R).
+
+### INSTRUCTIONS
+
+Using the gap2007 data:
+
+Create a density plot of the population variable.
+Mutate a new column called log_pop that is the natural log of the population and save it back into gap2007.
+Create a density plot of your transformed variable.
+
+```{r}
+# Create density plot of old variable
+gap2007 %>%
+  ggplot(aes(x = pop)) +
+  geom_density()
+
+# Transform the skewed pop variable
+gap2007 <- gap2007 %>%
+  mutate(log_pop= log(pop))
+
+# Create density plot of new variable
+gap2007 %>%
+  ggplot(aes(x = log_pop)) +
+  geom_density()
+
+```
+
+### Identify outliers
+
+Consider the distribution, shown here, of the life expectancies of the countries in Asia. The box plot identifies one clear outlier: a country with a notably low life expectancy. Do you have a guess as to which country this might be? Test your guess in the console using either min() or filter(), then proceed to building a plot with that country removed.
+
+### INSTRUCTIONS
+
+gap2007 is still available in your workspace.
+
+Apply a filter so that it only contains observations from Asia, then create a new variable called is_outlier that is TRUE for countries with life expectancy less than 50. Assign the result to gap_asia.
+Filter gap_asia to remove all outliers, then create another box plot of the remaining life expectancies.
+
+```{r}
+gap2007 <- filter(gapminder, year == 2007)
+    gap2007 %>%
+    filter(continent == "Asia") %>%
+  ggplot(aes(x = 1, y = lifeExp)) +
+  geom_boxplot()
+
+
+```
+```{r}
+
+# Filter for Asia, add column indicating outliers
+gap_asia <- gap2007 %>%
+  filter(continent=="Asia") %>%
+  mutate(is_outlier = lifeExp<50)
+
+# Remove outliers, create box plot of lifeExp
+gap_asia %>%
+  filter(!is_outlier) %>%
+  ggplot(aes(x = 1, y = lifeExp)) +
+  geom_boxplot()
 
 ```
 
 
 
 
-Case Study
+
+
+
+## Case Study
 
 Apply what you've learned to explore and summarize a real world dataset in this case study of email spam.
-
-```{r}
-
-```
-
-```{r}
-
-```
-
-```{r}
-
-```
-
-```{r}
-
-```
-
-```{r}
-
-```
-
 
 
 
