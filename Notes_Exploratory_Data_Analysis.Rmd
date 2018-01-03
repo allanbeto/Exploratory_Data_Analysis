@@ -46,6 +46,7 @@ url <- "http://s3.amazonaws.com/assets.datacamp.com/production/course_1796/datas
 #install.packages("ggplot2")
 #install.packages("gapminder")
 #install.packages("gridExtra")
+install.packages("openintro")
 
 #dataframe
 comics <- read.csv("comics.csv", stringsAsFactors = TRUE)
@@ -454,7 +455,7 @@ library("gapminder")
 
 # Create dataset of 2007 data
 gap2007 <- filter(gapminder, year==2007)
-
+  
 # Compute groupwise mean and median lifeExp
 gap2007 %>%
   group_by(continent) %>%
@@ -602,15 +603,98 @@ gap_asia %>%
 ```
 
 
-
-
-
-
-
 ## Case Study
 
 Apply what you've learned to explore and summarize a real world dataset in this case study of email spam.
 
+### Spam and num_char
 
+Is there an association between spam and the length of an email? You could imagine a story either way:
+
+Spam is more likely to be a short message tempting me to click on a link, or
+My normal email is likely shorter since I exchange brief emails with my friends all the time.
+Here, you'll use the email dataset to settle that question. Begin by bringing up the help file and learning about all the variables with ?email.
+
+As you explore the association between spam and the length of an email, use this opportunity to try out linking a dplyr chain with the layers in a ggplot2 object.
+
+### INSTRUCTIONS
+
+Using the email dataset
+
+Load the packages ggplot2, dplyr, and openintro.
+Compute appropriate measures of the center and spread of num_char for both spam and not-spam using group_by() and summarize(). No need to name the new columns created by summarize().
+Construct side-by-side box plots to visualize the association between the same two variables. It will be useful to mutate() a new column containing a log-transformed version of num_char.
+```{r}
+
+#precode
+
+email <- as_data_frame(email)
+email$spam <- as.factor(email$spam)
+levels(email$spam) <- c("not-spam", "spam")
+email$number <- factor(email$number, levels = c("big", "none", "small"))
+
+# Load packages
+library("ggplot2")
+library("dplyr")
+library("openintro")
+
+# Compute summary statistics
+email %>%
+  group_by(spam) %>%
+  summarise(median(num_char), IQR(num_char))
+
+# Create plot
+email %>%
+    mutate(log_num_char = log(num_char)) %>%
+    ggplot(aes( x = factor(spam), y = log_num_char)) +
+    geom_boxplot()
+
+
+```
+
+### Spam and !!!
+
+Let's look at a more obvious indicator of spam: exclamation marks. exclaim_mess contains the number of exclamation marks in each message. Using summary statistics and visualization, see if there is a relationship between this variable and whether or not a message is spam.
+
+Experiment with different types of plots until you find one that is the most informative. Recall that you've seen:
+
+Side-by-side box plots
+Faceted histograms
+Overlaid density plots
+
+### INSTRUCTIONS
+
+The email dataset is still available in your workspace.
+
+Calculate appropriate measures of the center and spread of exclaim_mess for both spam and not-spam using group_by() and summarize().
+Construct an appropriate plot to visualize the association between the same two variables, adding in a log-transformation step if necessary.
+If you decide to use a log transformation, remember that log(0) is -Inf in R, which isn't a very useful value! You can get around this by adding a small number (like .01) to the quantity inside the log() function. This way, your value is never zero. This small shift to the right won't affect your results.
+
+```{r}
+# Compute center and spread for exclaim_mess by spam
+email %>%
+  group_by(spam) %>%
+  summarize(median(exclaim_mess), IQR(exclaim_mess)) 
+# Create plot for spam and exclaim_mess
+email %>% 
+  mutate(log_exclaim_mess = log(exclaim_mess + .01)) %>%
+  ggplot(aes(x = log_exclaim_mess)) +
+  geom_histogram() +
+  facet_wrap(~ spam)
+
+#alternative plot
+email %>% 
+  mutate(log_exclaim_mess = log(exclaim_mess + .01)) %>%
+  ggplot(aes(x = 1, y=log_exclaim_mess)) +
+  geom_boxplot() +
+  facet_wrap(~ spam)
+
+email %>% 
+  mutate(log_exclaim_mess = log(exclaim_mess + .01)) %>%
+  ggplot(aes(x = log_exclaim_mess, fill = spam)) +
+  geom_density(alpha = 0.3)
+
+      
+```
 
 
